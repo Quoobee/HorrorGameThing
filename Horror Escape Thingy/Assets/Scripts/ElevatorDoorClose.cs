@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class ElevatorDoorClose : MonoBehaviour
 {
-    public bool doorOpen = false;
-    //int speed = 1;   //I removed speed, because it makes more sense, and saves space just dividing distance
-    //int distance = 200; //I removed this to simplify the code for now
+    int speed = 10; //The larger the number, the slower it moves
+    float distance = 3; //Adjust the multiplier to change how many units to move
+    public bool floorPressed = false; //this is the elevator buttons
+    public GameObject eli;
+    bool doorOpen = false;
     public bool buttonPressed = false;
-    public GameObject door;
+    public GameObject doorEli;
+
+    double timer = 0;
     
     void Start ()
     {
@@ -17,26 +21,54 @@ public class ElevatorDoorClose : MonoBehaviour
 	
 	void Update ()
     {
+        timer = timer + Time.deltaTime;
+
         if (doorOpen == false && buttonPressed == true)
         {
+            buttonPressed = false; //Prevents MoveDoor from being called more than once
+            StartCoroutine(OpenDoor()); //This is needed in order to call an IEnumerator
+        }
+        else if (doorOpen == true && buttonPressed == true)
+        {
             buttonPressed = false;
-            Debug.Log("Condition is met, button is set to false");
-            StartCoroutine(MoveDoor()); //This is needed in order to call an IEnumerator
+            StartCoroutine(CloseDoor(speed: 60)); //this keeps distance, the first option, default
+        }
+
+        if (floorPressed == true)
+        {
+            floorPressed = false;
+            StartCoroutine(MoveElevator(10)); //Every floor is about a multiple of 5
         }
     }
 
-    IEnumerator MoveDoor() //This is needed to call WaitForSeconds
+    // \/ This is needed to call WaitForSeconds
+    IEnumerator OpenDoor(float distance = 3, int speed = 10) //when equals is selected, defaults
     {
-        Debug.Log("Called MoveDoor");
-        for (int i = 0; i < 60; i++)
+        for (int i = 0; i < speed; i++) 
         {
-            door.transform.Translate(Vector3.back );
-            Debug.Log("Moved Door");
-            yield return new WaitForSeconds(1); //this CAN NOT be in Update()
+            doorEli.transform.Translate(Vector3.back * distance / speed); //.back is z-1 
+            yield return new WaitForSeconds(0.015f); //This CAN NOT be in Update()
         }
-        Debug.Log("Door is done moving, door Open is set to true");
-        doorOpen = true;
+        doorOpen = true; //Prevents MoveDoor from being called more than once
+    }
 
+    IEnumerator CloseDoor(float distance = 3, int speed = 10) //but chosen value replaces it
+    {
+        for (int i = 0; i < speed; i++)
+        {
+            doorEli.transform.Translate(Vector3.back * distance / speed * -1);
+            yield return new WaitForSeconds(0.015f);
+        }
+        doorOpen = false;
+    }
+    int eliSpeed = 10;
 
+    IEnumerator MoveElevator(int distance = -5, int speed = 100)
+    {
+        for (int i = 0; i < speed; i++)
+        {
+            eli.transform.Translate(Vector3.up * distance / speed);
+            yield return new WaitForSeconds(0.015f);
+        }
     }
 }

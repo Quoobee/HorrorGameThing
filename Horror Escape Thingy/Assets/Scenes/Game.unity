@@ -2276,9 +2276,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aba435d6a03bd3e45bfe9e3052dfc304, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorOpen: 0
+  floorPressed: 0
+  eli: {fileID: 1417339762}
   buttonPressed: 0
-  door: {fileID: 403353412}
+  doorEli: {fileID: 403353412}
 --- !u!1 &1479529005
 GameObject:
   m_ObjectHideFlags: 0
