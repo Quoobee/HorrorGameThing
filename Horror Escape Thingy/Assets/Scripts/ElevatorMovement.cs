@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ElevatorDoorClose : MonoBehaviour
+public class ElevatorMovement : MonoBehaviour
 {
-    int speed = 10; //The larger the number, the slower it moves
-    float distance = 3; //Adjust the multiplier to change how many units to move
-    public bool floorPressed = false; //this is the elevator buttons
+    bool floorPressed = false; //this is the elevator buttons
     public GameObject eli;
     bool doorOpen = false;
-    public bool buttonPressed = false;
+    bool doorPressed = false;
     public GameObject doorEli;
+    bool doorMoved = false;
 
     double timer = 0;
     
@@ -21,23 +20,24 @@ public class ElevatorDoorClose : MonoBehaviour
 	
 	void Update ()
     {
-        timer = timer + Time.deltaTime;
+        timer = timer + Time.deltaTime; //This tells you the exact amount of time that has passed
 
-        if (doorOpen == false && buttonPressed == true)
+        if (doorOpen == false && doorPressed == true)
         {
-            buttonPressed = false; //Prevents MoveDoor from being called more than once
+            doorPressed = false; //Prevents MoveDoor from being called more than once
             StartCoroutine(OpenDoor()); //This is needed in order to call an IEnumerator
         }
-        else if (doorOpen == true && buttonPressed == true)
+        else if (doorOpen == true && doorPressed == true)
         {
-            buttonPressed = false;
-            StartCoroutine(CloseDoor(speed: 60)); //this keeps distance, the first option, default
+            doorPressed = false;
+            StartCoroutine(CloseDoor()); //this keeps distance, the first option, default
         }
 
-        if (floorPressed == true)
+        if (floorPressed == true && doorMoved == false)
         {
             floorPressed = false;
-            StartCoroutine(MoveElevator(10)); //Every floor is about a multiple of 5
+            doorMoved = true;
+            StartCoroutine(MoveElevator(-10)); //Every floor is about a multiple of 5
         }
     }
 
@@ -61,7 +61,6 @@ public class ElevatorDoorClose : MonoBehaviour
         }
         doorOpen = false;
     }
-    int eliSpeed = 10;
 
     IEnumerator MoveElevator(int distance = -5, int speed = 100)
     {
@@ -69,6 +68,23 @@ public class ElevatorDoorClose : MonoBehaviour
         {
             eli.transform.Translate(Vector3.up * distance / speed);
             yield return new WaitForSeconds(0.015f);
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        Debug.Log("Initial Collision");
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("E Has Been Pressed");
+            if (other.gameObject.tag == "door")
+            {
+                doorPressed = true;
+            }
+            else if (other.gameObject.tag == "floor")
+            {
+                floorPressed = true;
+            }
         }
     }
 }
